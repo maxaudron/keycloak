@@ -380,6 +380,15 @@ public class RoleLDAPStorageMapper extends AbstractLDAPStorageMapper implements 
                     // We need to create new role mappings in LDAP
                     cachedLDAPRoleMappings = null;
                     addRoleMappingInLDAP(role.getName(), ldapUser);
+
+                    if (role.isComposite()) {
+                        Stream<RoleModel> compositeRoles = role.getCompositeStream();
+
+                        Consumer<String> syncCompositeRoles = roleName -> {
+                            addRoleMappingInLDAP(roleName, ldapUser);
+                        }
+                        compositeRoles.map(RoleModel::getName).forEach(syncCompositeRoles);
+                    }
                 } else {
                     super.grantRole(role);
                 }
